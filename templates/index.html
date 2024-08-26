@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Piano Transcription</title>
+</head>
+<body>
+    <h1>Piano Transcription</h1>
+    <form id="transcribe-form" enctype="multipart/form-data" method="post">
+        <input type="file" name="file" accept=".mp3" required>       
+        <div>
+            <input type="radio" id="midi" name="format" value="midi" checked>
+            <label for="midi">MIDI</label>
+          </div>
+          <div>
+            <input type="radio" id="pdf" name="format" value="pdf">
+            <label for="pdf">PDF</label>
+          </div>
+          <div>
+            <input type="radio" id="musicxml" name="format" value="musicxml">
+            <label for="musicxml">MusicXML</label>
+          </div>
+        <button type="submit">Transcribe</button>
+    </form>
+    
+    <script>
+        const form = document.getElementById('transcribe-form');
+        form.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const formData = new FormData(form);
+            fetch('/transcribe', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.blob())
+            .then(blob => {
+                const url = window.URL.createObjectURL(new Blob([blob]));
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = 'output.' + (formData.get('format') === 'pdf' ? 'pdf' : 'xml');
+                link.click();
+            })
+            .catch(error => console.error(error));
+        });
+    </script>
+</body>
+</html>
